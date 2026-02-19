@@ -1,0 +1,85 @@
+.version 8.0
+.target sm_89
+.address_size 64
+
+.visible .entry add_kernel(
+    .param .u64 param0
+    .param .u64 param1
+    .param .u64 param2
+)
+
+{
+    ret;
+}
+
+// threds
+%tid.x
+%tid.y
+%tid.z
+
+/ blockid
+%ctaid.x
+
+block dimension
+%ntid.x
+
+
+idx = blockId.x * blockDim.x + threadIdx.x
+
+mov.u32 %r1, %tid.x;
+mov.u32 %r2, %ctaid.x;
+mov.u32 %r3, %ntid.x;
+
+mad.lo.u32 %r4, %r2, %r3, %r4
+
+
+
+mov.u32 %r1, 10;
+mov.u32 %r2, 20;
+add.u32 %r3, %r1, %r2
+r3 = 30
+
+
+Registers   fastest   thread
+Shared      fast      block
+local       slow      thread
+global      slow      GPU
+constant    fast      read-only
+
+
+ld.global.u32 %r1, [%rd1];
+
+st.global.u32 [%rd1], %r1
+
+
+ld.global.f32 %f1, [%rd1];
+lod.global.f32 %f2, [%rd2];
+
+add.f32 %f3, %f1, %f2
+
+st.global.f32 [%rd3], %f3
+
+
+Memory coalescing
+
+Ideal
+Thread 0 → address 0
+Thread 1 → address 4
+Thread 2 → address 8
+
+Degrading
+
+Random addresses
+
+Thread 0 → address 0
+Thread 1 → address 16
+Thread 2 → address 32
+
+Occupancy
+Number of active threads per SM
+
+Higher occupancy: better performance
+
+Register usage too many registers: reduces the occupancy
+
+bar.sync 0;
